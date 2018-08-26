@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import rospy
+import numpy as np
 from geometry_msgs.msg import PoseStamped
 from styx_msgs.msg import Lane, Waypoint
 from scipy.spatial import KDTree
@@ -35,7 +36,7 @@ class WaypointUpdater(object):
         self.pose = None
         self.base_waypoints = None
         self.waypoints_2d = None
-        self.waypoint_kdtree = None
+	self.waypoint_kdtree = None
 
         self.final_waypoints_pub = rospy.Publisher('final_waypoints', Lane, queue_size=1)
 
@@ -44,7 +45,7 @@ class WaypointUpdater(object):
     def loop(self):
         rate = rospy.Rate(50)
         while not rospy.is_shutdown():
-            if self.pose and self.base_waypoints:
+            if self.pose and self.waypoint_kdtree:
                 # publish closest points
                 self.publish_waypoints(self.get_closest_waypoint_idx())
             rate.sleep()
@@ -77,10 +78,10 @@ class WaypointUpdater(object):
         self.pose = msg
 
     def waypoints_cb(self, waypoints):
-        self.base_waypoints = waypoints
+       	self.base_waypoints = waypoints
         if not self.waypoints_2d:
-            self.waypoint_2d = [[position.x, position.y] for position in waypoints.pose.pose.position]
-            self.waypoint_kdtree = KDTree(self.waypoint_2d)
+            self.waypoints_2d = [[wp.pose.pose.position.x, wp.pose.pose.position.y] for wp in waypoints.waypoints]
+            self.waypoint_kdtree = KDTree(self.waypoints_2d)
 
     def traffic_cb(self, msg):
         # TODO: Callback for /traffic_waypoint message. Implement
