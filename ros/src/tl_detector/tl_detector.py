@@ -96,7 +96,7 @@ class TLDetector(object):
             self.upcoming_red_light_pub.publish(Int32(self.last_wp))
         self.state_count += 1
 
-    def get_closest_waypoint(self, pose):
+    def get_closest_waypoint(self, x, y):
         """Identifies the closest path waypoint to the given position
             https://en.wikipedia.org/wiki/Closest_pair_of_points_problem
         Args:
@@ -106,7 +106,7 @@ class TLDetector(object):
             int: index of the closest waypoint in self.waypoints
 
         """
-        closest_wp_idx = self.waypoint_kdtree.query([pose.x, pose.y], 1)[1] # get index
+        closest_wp_idx = self.waypoint_kdtree.query([x, y], 1)[1] # get index
         return closest_wp_idx
 
     def get_light_state(self, light):
@@ -145,12 +145,13 @@ class TLDetector(object):
         # List of positions that correspond to the line to stop in front of for a given intersection
         stop_line_positions = self.config['stop_line_positions']
         if(self.pose):
-            car_wp_idx = self.get_closest_waypoint(self.pose.pose.position)
+            position = self.pose.pose.position
+            car_wp_idx = self.get_closest_waypoint(position.x, position.y)
             minimum = len(self.waypoints.waypoints)
             # find closest light
             for i, l in enumerate(self.lights):
                 stop_line = stop_line_positions[i]
-                wp_closest_to_line_idx = self.get_closest_waypoint(stop_line)
+                wp_closest_to_line_idx = self.get_closest_waypoint(stop_line[0], stop_line[1])
                 distance = wp_closest_to_line_idx-car_wp_idx
                 front = bool(distance)
                 # if there is a light in front
