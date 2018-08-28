@@ -77,7 +77,7 @@ class WaypointUpdater(object):
             if i >= stop_idx:
                 vel = 0
             else:
-                dist = self.distance(waypoints, i, stop_idx)
+                dist = self.distance(base_waypoints, i, stop_idx)
                 vel = math.sqrt(2*MAX_DECEL*dist)
                 if vel < 1: vel = 0
             p.twist.twist.linear.x = min(vel, wp.twist.twist.linear.x) # speed limit
