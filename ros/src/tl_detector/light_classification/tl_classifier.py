@@ -1,14 +1,15 @@
 from styx_msgs.msg import TrafficLight
 import pickle
+import rospy
 
 class TLClassifier(object):
     def __init__(self):
         self.x = 109 # detection image size
         self.y = 43
-
+	self.model_path = rospy.get_param('/model_path')
         # load pickle file
-        self.X_scaler = pickle.load(open("X_scaler.pkl", "rb"))
-        self.svc = pickle.load(open('svc.pkl', 'rb'))
+        self.X_scaler = pickle.load(open(self.model_path+"X_scaler.pkl", "rb"))
+        self.svc = pickle.load(open(self.model_path+'svc.pkl', 'rb'))
 
     def get_classification(self, image):
         """Determines the color of the traffic light in the image
