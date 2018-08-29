@@ -68,10 +68,10 @@ class WaypointUpdater(object):
             lane.waypoints = self.deccelerate_waypoints(base_waypoints, closest_wp_idx)
         return lane
 
-    def deccelerate_waypoints(self, base_waypoints, closest_wp_idx):
+    def deccelerate_waypoints(self, waypoints, closest_wp_idx):
         final_waypoints = []
-        stop_idx = self.stopline_wp_idx - closest_wp_idx - 2 # stopping at 2 wp before the stop line
-        for i, wp in enumerate(base_waypoints):
+        stop_idx = max(self.stopline_wp_idx - closest_wp_idx - 3, 0) # stopping at 3 wp before the stop line
+        for i, wp in enumerate(waypoints):
             p = Waypoint()
             p.pose = wp.pose
             if i >= stop_idx:
