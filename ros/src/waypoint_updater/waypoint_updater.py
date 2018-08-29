@@ -74,12 +74,9 @@ class WaypointUpdater(object):
         for i, wp in enumerate(waypoints):
             p = Waypoint()
             p.pose = wp.pose
-            if i >= stop_idx:
-                vel = 0
-            else:
-                dist = self.distance(waypoints, i, stop_idx)
-                vel = math.sqrt(2*MAX_DECEL*dist)
-                if vel < 1: vel = 0
+            dist = self.distance(waypoints, i, stop_idx)
+            vel = math.sqrt(2*MAX_DECEL*dist)
+            if vel < 1: vel = 0
             p.twist.twist.linear.x = min(vel, wp.twist.twist.linear.x) # speed limit
             final_waypoints.append(p)
         return final_waypoints
