@@ -56,6 +56,8 @@ class TLDetector(object):
         self.last_wp = -1
         self.state_count = 0
 
+        self.process_light_count = 0
+
         rospy.spin()
 
     def pose_cb(self, msg):
@@ -86,9 +88,14 @@ class TLDetector(object):
         """
         self.has_image = True
         self.camera_image = msg
-        light_wp, state = self.process_traffic_lights()
+        if self.process_light_count < 30:
+            self.process_light_count += 1
+            light_wp, state = self.last_wp, self.state
+        else:
+            light_wp, state = self.process_traffic_lights()
+            self.process_light_count = 0
 	# collect data to build classifier
-        self.save_img_to_file(msg)
+        #self.save_img_to_file(msg)
 	'''
         Publish upcoming red lights at camera frequency.
         Each predicted state has to occur `STATE_COUNT_THRESHOLD` number
@@ -130,17 +137,13 @@ class TLDetector(object):
             int: ID of traffic light color (specified in styx_msgs/TrafficLight)
 
         """
-        return light.state # for now, before we build the model
-        '''
+        #return light.state # for now, before we build the model
         if(not self.has_image):
             self.prev_light_loc = None
             return False
-
         cv_image = self.bridge.imgmsg_to_cv2(self.camera_image, "bgr8")
-
-        #Get classification
-        return self.light_classifier.get_classification(cv_image)
-        '''
+        state = self.light_classifier.get_classification(cv_image)
+        return state
 
     def process_traffic_lights(self):
         """Finds closest visible traffic light, if one exists, and determines its
