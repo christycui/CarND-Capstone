@@ -23,7 +23,7 @@ as well as to verify your TL classifier.
 TODO (for Yousuf and Aaron): Stopline location for each traffic light.
 '''
 
-LOOKAHEAD_WPS = 200 # Number of waypoints we will publish. You can change this number
+LOOKAHEAD_WPS = 150 # Number of waypoints we will publish. You can change this number
 MAX_DECEL = .5
 
 class WaypointUpdater(object):
@@ -42,7 +42,7 @@ class WaypointUpdater(object):
 	self.waypoint_kdtree = None
 
         self.final_waypoints_pub = rospy.Publisher('final_waypoints', Lane, queue_size=1)
-
+	self.closest_wp_pub = rospy.Publisher('closest_wp', Int32, queue_size=1)
         self.loop()
 
     def loop(self):
@@ -59,13 +59,13 @@ class WaypointUpdater(object):
     def generate_lane(self):
         lane = Lane()
         closest_wp_idx = self.get_closest_waypoint_idx()
-        furthest_wp_idx = closest_wp_idx+LOOKAHEAD_WPS
-        base_waypoints = self.base_waypoints.waypoints[closest_wp_idx:furthest_wp_idx]
+        farthest_wp_idx = closest_wp_idx+LOOKAHEAD_WPS
+        base_waypoints = self.base_waypoints.waypoints[closest_wp_idx:farthest_wp_idx]
 
-        if self.stopline_wp_idx == -1 or (self.stopline_wp_idx >= furthest_wp_idx):
-            lane.waypoints = base_waypoints
-        else:
+        if self.stopline_wp_idx != -1 and (self.stopline_wp_idx <= farthest_wp_idx):
             lane.waypoints = self.deccelerate_waypoints(base_waypoints, closest_wp_idx)
+        else:
+            lane.waypoints = base_waypoints
         return lane
 
     def deccelerate_waypoints(self, waypoints, closest_wp_idx):
@@ -88,7 +88,6 @@ class WaypointUpdater(object):
 
         closest_wp = self.waypoints_2d[closest_idx]
         prev_wp = self.waypoints_2d[closest_idx-1]
-
         # determine if the closest wp is in front of or behind the car
         cl_vect = np.array(closest_wp)
         prev_vect = np.array(prev_wp)
@@ -97,6 +96,7 @@ class WaypointUpdater(object):
         front = np.dot(cl_vect-prev_vect, pos_vect-cl_vect)
         if front > 0:
             closest_idx = (closest_idx+1) % len(self.waypoints_2d)
+	self.closest_wp_pub.publish(closest_idx)
         return closest_idx
 
     def pose_cb(self, msg):
