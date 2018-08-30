@@ -89,7 +89,7 @@ class TLDetector(object):
         """
         self.has_image = True
         self.camera_image = msg
-        if self.process_light_count < 10:
+        if self.process_light_count < 20:
             self.process_light_count += 1
             light_wp, state = self.last_wp, self.state
         else:
