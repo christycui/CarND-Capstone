@@ -1,6 +1,9 @@
 from styx_msgs.msg import TrafficLight
 import pickle
 import rospy
+import cv2
+import numpy as np
+from skimage.feature import hog
 
 class TLClassifier(object):
     def __init__(self):
@@ -65,9 +68,9 @@ class TLClassifier(object):
                 xleft = xpos*pix_per_cell
                 ytop = ypos*pix_per_cell
                 
-                if ytop+x < 600 or xleft+y < 800:
+                if ytop+self.x < 600 or xleft+self.y < 800:
                     pass
-                subimg = cv2.resize(ctrans_tosearch[ytop:ytop+self.x, xleft:xleft+self.y], (x,y))
+                subimg = cv2.resize(ctrans_tosearch[ytop:ytop+self.x, xleft:xleft+self.y], (self.x, self.y))
                 
                 # HOG features
                 hog_feat1 = self.get_hog_features(subimg[:,:,0], orient, pix_per_cell, cell_per_block, feature_vec=True).ravel() 
@@ -79,14 +82,10 @@ class TLClassifier(object):
                 spatial_features = self.bin_spatial(subimg, size=spatial_size)
                 hist_features = self.color_hist(subimg, nbins=hist_bins)
                 # Scale features and make a prediction
-                test_features = X_scaler.transform(np.hstack((spatial_features, hist_features, hog_features)).reshape(1, -1))    
-                test_prediction = svc.predict(test_features)
+                test_features = self.X_scaler.transform(np.hstack((spatial_features, hist_features, hog_features)).reshape(1, -1))    
+                test_prediction = self.svc.predict(test_features)
                 
                 if test_prediction == 1:
-                    xbox_left = np.int(xleft*scale)
-                    ytop_draw = np.int(ytop*scale)
-                    win_draw = np.int(window*scale)
-                    boxes.append(((xbox_left, ytop_draw+ystart),(xbox_left+win_draw,ytop_draw+win_draw+ystart)))
                     return 1
         return 0
 
