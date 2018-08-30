@@ -137,12 +137,13 @@ class TLDetector(object):
         if(not self.has_image):
             self.prev_light_loc = None
             return False
-        if self.process_light_count < 10:
+        if self.process_light_count < 15:
             self.process_light_count += 1
             return self.state
         else:
             cv_image = self.bridge.imgmsg_to_cv2(self.camera_image, "bgr8")
             state = self.light_classifier.get_classification(cv_image)
+            self.process_light_pub.publish(Int32(state))
             self.process_light_count = 0
             return state
 
