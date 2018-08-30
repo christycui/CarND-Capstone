@@ -46,6 +46,7 @@ class TLDetector(object):
         self.config = yaml.load(config_string)
 
         self.upcoming_red_light_pub = rospy.Publisher('/traffic_waypoint', Int32, queue_size=1)
+        self.process_light_pub = rospy.Publisher('/process_light', Int32, queue_size=5)
 
         self.bridge = CvBridge()
         self.light_classifier = TLClassifier()
@@ -88,11 +89,13 @@ class TLDetector(object):
         """
         self.has_image = True
         self.camera_image = msg
-        if self.process_light_count < 30:
+        if self.process_light_count < 10:
             self.process_light_count += 1
             light_wp, state = self.last_wp, self.state
         else:
             light_wp, state = self.process_traffic_lights()
+            light_wp_code = light_wp if state == TrafficLight.RED else -1
+            self.process_light_pub.publish(Int32(light_wp_code))
             self.process_light_count = 0
 	# collect data to build classifier
         #self.save_img_to_file(msg)
