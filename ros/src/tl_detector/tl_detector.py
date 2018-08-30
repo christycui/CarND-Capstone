@@ -137,7 +137,7 @@ class TLDetector(object):
         if(not self.has_image):
             self.prev_light_loc = None
             return False
-        if self.process_light_count < 15:
+        if self.process_light_count < 30:
             self.process_light_count += 1
             return self.state
         else:
