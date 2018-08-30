@@ -89,14 +89,7 @@ class TLDetector(object):
         """
         self.has_image = True
         self.camera_image = msg
-        if self.process_light_count < 20:
-            self.process_light_count += 1
-            light_wp, state = self.last_wp, self.state
-        else:
-            light_wp, state = self.process_traffic_lights()
-            light_wp_code = light_wp if state == TrafficLight.RED else -1
-            self.process_light_pub.publish(Int32(light_wp_code))
-            self.process_light_count = 0
+        light_wp, state = self.process_traffic_lights()
 	# collect data to build classifier
         #self.save_img_to_file(msg)
 	'''
