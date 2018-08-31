@@ -32,7 +32,7 @@ class TLClassifier(object):
 
         ystart = 0
         ystop = 400
-        scale = 2
+        scale = 1.5
         result = self.find_red_light(image, ystart, ystop, scale, self.svc, \
             self.X_scaler, orient, pix_per_cell, cell_per_block, \
             spatial_size, hist_bins)
