@@ -23,4 +23,6 @@
 
     <!--Camera Info Publisher -->
     <include file="$(find camera_info_publisher)/launch/camera_info_publisher.launch"/>
+
+    <param name="model_path" value="$(find styx)../tl_detector/light_classification/" />
 </launch>
