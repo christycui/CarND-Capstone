@@ -31,7 +31,7 @@ class TLClassifier(object):
         hist_bins = 16    # Number of histogram bins
 
         ystart = 0
-        ystop = 600
+        ystop = 400
         scale = 2
         result = self.find_red_light(image, ystart, ystop, scale, self.svc, \
             self.X_scaler, orient, pix_per_cell, cell_per_block, \
@@ -55,7 +55,7 @@ class TLClassifier(object):
         nyblocks = (ch1.shape[0] // pix_per_cell)-1 
         nfeat_per_block = orient*cell_per_block**2
         # 64 was the orginal sampling rate, with 8 cells and 8 pix per cell
-        window = 64
+        window = 128
         nblocks_per_window = (window // pix_per_cell)-1 
         cells_per_step = 2  # Instead of overlap, define how many cells to step
         nxsteps = (nxblocks - nblocks_per_window) // cells_per_step
